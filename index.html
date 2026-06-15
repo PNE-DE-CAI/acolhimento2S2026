@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tetris Educativo: Replanejamento Escolar 2026</title>
+  <style>
+    * {
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: linear-gradient(145deg, #1a3c2c 0%, #0e2a1e 100%);
+      font-family: 'Segoe UI', 'Poppins', 'Roboto', system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .game-container {
+      background: #1e2f2a;
+      border-radius: 48px;
+      padding: 20px 30px;
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4), inset 0 1px 4px rgba(255, 255, 255, 0.1);
+      border: 1px solid #3f7864;
+    }
+
+    .tetris-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
+      backdrop-filter: blur(2px);
+    }
+
+    /* área principal do jogo */
+    .game-area {
+      text-align: center;
+    }
+
+    canvas#boardCanvas {
+      background-color: #0b1b16;
+      border-radius: 24px;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5), inset 0 0 0 2px #3c8d72;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .info-panel {
+      background: #1b332b;
+      border-radius: 32px;
+      padding: 20px 25px;
+      box-shadow: inset 0 1px 3px #2e6d58, 0 10px 20px rgba(0, 0, 0, 0.3);
+      min-width: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .next-piece {
+      background: #10261f;
+      border-radius: 24px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .next-piece h3 {
+      margin: 0 0 12px 0;
+      color: #f9e7c2;
+      font-weight: 600;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: #2d5a48;
+      display: inline-block;
+      padding: 4px 16px;
+      border-radius: 40px;
+    }
+
+    canvas#nextCanvas {
+      background-color: #0b1b16;
+      border-radius: 20px;
+      display: block;
+      margin: 0 auto;
+      box-shadow: inset 0 0 0 1px #4e9b81;
+    }
+
+    .score-board {
+      background: #0c231d;
+      border-radius: 28px;
+      padding: 12px 20px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .score-board p {
+      margin: 8px 0;
+      color: #f3e1b3;
+      font-weight: bold;
+      font-size: 1.4rem;
+      background: #00000033;
+      border-radius: 32px;
+      padding: 6px;
+    }
+
+    .score-board span {
+      color: #FFD966;
+      font-size: 1.8rem;
+      font-weight: 800;
+      display: inline-block;
+      min-width: 100px;
+      background: #1d3d33;
+      padding: 4px 12px;
+      border-radius: 40px;
+      margin-left: 8px;
+    }
+
+    button {
+      background: #d9a13b;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 10px 24px;
+      border-radius: 60px;
+      color: #1e2f1c;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s;
+      box-shadow: 0 4px 0 #7a4f1a;
+      margin-top: 8px;
+    }
+
+    button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #7a4f1a;
+    }
+
+    .context-header {
+      text-align: center;
+      margin-bottom: 20px;
+      background: #fcf3daee;
+      padding: 12px 20px;
+      border-radius: 60px;
+      backdrop-filter: blur(4px);
+    }
+
+    .context-header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: #1a472a;
+      font-weight: 800;
+    }
+
+    .context-header p {
+      margin: 6px 0 0;
+      font-size: 0.8rem;
+      color: #2b5a42;
+      font-weight: 500;
+    }
+
+    .controls-tip {
+      font-size: 0.7rem;
+      color: #cbe5d6;
+      text-align: center;
+      margin-top: 10px;
+      background: #00000055;
+      padding: 6px 12px;
+      border-radius: 30px;
+    }
+
+    @media (max-width: 620px) {
+      .tetris-wrapper {
+        gap: 15px;
+      }
+      .info-panel {
+        padding: 15px;
+        min-width: 150px;
+      }
+      canvas#boardCanvas {
+        width: 300px;
+        height: 600px;
+      }
+      .score-board span {
+        font-size: 1.3rem;
+        min-width: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div>
+  <div class="context-header">
+    <h2>📚 REPLANEJAMENTO ESCOLAR 2026 - TETRIS DAS PALAVRAS</h2>
+    <p>🎯 Planejar • Analisar • Organizar • Recuperação • Aprofundamento • Resultados • Desafios</p>
+    <p>🧩 Cada peça é uma palavra essencial. Monte linhas completas e avance nos objetivos pedagógicos!</p>
+  </div>
+  <div class="game-container">
+    <div class="tetris-wrapper">
+      <div class="game-area">
+        <canvas id="boardCanvas" width="350" height="700"></canvas>
+        <div class="controls-tip">
+          ⬅️  ➡️  mover | ⬆️ girar | ⬇️ descer | ESPAÇO: queda rápida
+        </div>
+      </div>
+      <div class="info-panel">
+        <div class="next-piece">
+          <h3>🔮 PRÓXIMA PALAVRA</h3>
+          <canvas id="nextCanvas" width="140" height="140"></canvas>
+        </div>
+        <div class="score-board">
+          <p>🏆 PONTOS <span id="scoreValue">0</span></p>
+          <p>📊 LINHAS <span id="linesValue">0</span></p>
+          <p>⚡ NÍVEL <span id="levelValue">1</span></p>
+        </div>
+        <button id="resetButton">🔄 NOVO JOGO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    // ---------- Contexto Educacional: Palavras que representam as peças ----------
+    // Cada tipo de tetromino carrega uma palavra-chave do replanejamento escolar 2026
+    const PIECES_WORDS = [
+      "PLANEJ",   // I (planejar aulas)
+      "ANALIS",   // O (analisar resultados)
+      "ORGNIZ",   // T (organizar período)
+      "RECUP",    // L (recuperação)
+      "APROF",    // J (aprofundamento)
+      "RESULT",   // S (resultados e ações)
+      "DESAFI"    // Z (desafios e ajustes)
+    ];
+
+    // Cores vibrantes associadas a cada palavra (tons educacionais)
+    const COLORS = [
+      "#3bc0fc", // PLANEJ - azul claro
+      "#f2b53c", // ANALIS - dourado
+      "#6fbf4c", // ORGNIZ - verde
+      "#e86f6f", // RECUP - coral
+      "#be7cff", // APROF - lilás
+      "#ff9f4a", // RESULT - laranja
+      "#62c8c2"  // DESAFI - menta
+    ];
+
+    // Definição das formas clássicas dos tetrominos (matrizes)
+    const SHAPES = [
+      {   // I
+          matrix: [[1,1,1,1]],
+          wordIdx: 0
+      },
+      {   // O
+          matrix: [[1,1],[1,1]],
+          wordIdx: 1
+      },
+      {   // T
+          matrix: [[0,1,0],[1,1,1]],
+          wordIdx: 2
+      },
+      {   // L
+          matrix: [[1,0,0],[1,1,1]],
+          wordIdx: 3
+      },
+      {   // J
+          matrix: [[0,0,1],[1,1,1]],
+          wordIdx: 4
+      },
+      {   // S
+          matrix: [[0,1,1],[1,1,0]],
+          wordIdx: 5
+      },
+      {   // Z
+          matrix: [[1,1,0],[0,1,1]],
+          wordIdx: 6
+      }
+    ];
+
+    // Parâmetros do jogo
+    const COLS = 10;
+    const ROWS = 20;
+    const CELL_SIZE = 35;       // 350x700 canvas
+    const NEXT_CELL_SIZE = 28;  // 140/5 ~28 (área preview)
+    
+    let boardCanvas = document.getElementById('boardCanvas');
+    let ctx = boardCanvas.getContext('2d');
+    let nextCanvas = document.getElementById('nextCanvas');
+    let nextCtx = nextCanvas.getContext('2d');
+    
+    // Estado do grid: cada célula armazena o índice da palavra/tipo (0..6) ou null se vazio
+    let grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+    
+    // Peça atual e próxima
+    let currentPiece = null;     // { matrix, wordIdx, x, y }
+    let nextPiece = null;
+    
+    // Estatísticas
+    let score = 0;
+    let linesCleared = 0;
+    let level = 1;
+    let gameOver = false;
+    let gameInterval = null;
+    let baseSpeed = 500;       // ms por frame inicial (nível 1)
+    
+    // Elementos DOM
+    const scoreSpan = document.getElementById('scoreValue');
+    const linesSpan = document.getElementById('linesValue');
+    const levelSpan = document.getElementById('levelValue');
+    const resetBtn = document.getElementById('resetButton');
+    
+    // ---------- Funções auxiliares ----------
+    function updateUI() {
+      scoreSpan.innerText = score;
+      linesSpan.innerText = linesCleared;
+      levelSpan.innerText = level;
+    }
+    
+    // Calcular velocidade baseada no nível (queda mais rápida)
+    function getDelayByLevel() {
+      let delay = Math.max(100, baseSpeed - (level-1) * 35);
+      return Math.min(delay, 500);
+    }
+    
+    // Resetar o temporizador do jogo com nova velocidade
+    function restartGameLoop() {
+      if (gameInterval) clearInterval(gameInterval);
+      if (!gameOver) {
+        const delay = getDelayByLevel();
+        gameInterval = setInterval(gameTick, delay);
+      }
+    }
+    
+    // Gerar uma peça aleatória (com shape e palavra)
+    function getRandomPiece() {
+      const idx = Math.floor(Math.random() * SHAPES.length);
+      const shape = SHAPES[idx];
+      // clonar matriz profundamente
+      const matrixCopy = shape.matrix.map(row => [...row]);
+      return {
+        matrix: matrixCopy,
+        wordIdx: shape.wordIdx,
+        x: Math.floor((COLS - matrixCopy[0].length) / 2),
+        y: 0
+      };
+    }
+    
+    // Inicializar próximo e atual (usado no começo e reset)
+    function initPieces() {
+      nextPiece = getRandomPiece();
+      spawnNewPiece();
+    }
+    
+    // Gerar nova peça a partir da "próxima"
+    function spawnNewPiece() {
+      if (!nextPiece) {
+        nextPiece = getRandomPiece();
+      }
+      currentPiece = {
+        matrix: nextPiece.matrix.map(row => [...row]),
+        wordIdx: nextPiece.wordIdx,
+        x: Math.floor((COLS - nextPiece.matrix[0].length) / 2),
+        y: 0
+      };
+      // Gerar próximo aleatório
+      nextPiece = getRandomPiece();
+      
+      // Verificar colisão ao nascer (game over)
+      if (collision(currentPiece.matrix, currentPiece.x, currentPiece.y)) {
+        gameOver = true;
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = null;
+        drawAll();  // mostrar tela final
+      } else {
+        drawAll();
+      }
+    }
+    
+    // Detectar colisão entre a peça e o grid / bordas
+    function collision(matrix, offsetX, offsetY) {
+      for (let row = 0; row < matrix.length; row++) {
+        for (let col = 0; col < matrix[0].length; col++) {
+          if (matrix[row][col] !== 0) {
+            const boardX = offsetX + col;
+            const boardY = offsetY + row;
+            if (boardX < 0 || boardX >= COLS || boardY >= ROWS || boardY < 0) {
+              return true;
+            }
+            if (boardY >= 0 && grid[boardY][boardX] !== null) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+    
+    // Fixar peça atual no grid (armazenando o wordIdx)
+    function mergePiece() {
+      for (let row = 0; row < currentPiece.matrix.length; row++) {
+        for (let col = 0; col < currentPiece.matrix[0].length; col++) {
+          if (currentPiece.matrix[row][col] !== 0) {
+            const boardX = currentPiece.x + col;
+            const boardY = currentPiece.y + row;
+            if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
+              grid[boardY][boardX] = currentPiece.wordIdx;
+            }
+          }
+        }
+      }
+      
+      // Limpar linhas completas e atualizar pontuação
+      clearLines();
+      
+      // Gerar nova peça
+      spawnNewPiece();
+      
+      // Após spawn, se gameOver for true, para o loop
+      if (gameOver) {
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = null;
+        drawAll();
+      } else {
+        // Reiniciar o loop com nova velocidade (pois nível pode ter mudado)
+        if (gameInterval) {
+          clearInterval(gameInterval);
+          const newDelay = getDelayByLevel();
+          gameInterval = setInterval(gameTick, newDelay);
+        }
+      }
+      drawAll();
+    }
+    
+    // Remover linhas preenchidas, atualizar score e nível
+    function clearLines() {
+      let rowsRemoved = 0;
+      for (let row = ROWS-1; row >= 0; ) {
+        let full = true;
+        for (let col = 0; col < COLS; col++) {
+          if (grid[row][col] === null) {
+            full = false;
+            break;
+          }
+        }
+        if (full) {
+          // Remove linha: desloca tudo acima para baixo
+          for (let r = row; r > 0; r--) {
+            grid[r] = [...grid[r-1]];
+          }
+          grid[0] = Array(COLS).fill(null);
+          rowsRemoved++;
+          // continua verificando a mesma linha (agora nova linha no índice row)
+        } else {
+          row--;
+        }
+      }
+      
+      if (rowsRemoved > 0) {
+        // Pontuação clássica com bônus por linhas múltiplas
+        const lineScores = {1: 100, 2: 300, 3: 500, 4: 800};
+        const addScore = (lineScores[rowsRemoved] || 100) * level;
+        score += addScore;
+        linesCleared += rowsRemoved;
+        
+        // Atualizar nível (a cada 10 linhas)
+        const newLevel = Math.floor(linesCleared / 10) + 1;
+        if (newLevel > level) {
+          level = newLevel;
+          // reiniciar intervalo com velocidade atualizada
+          if (!gameOver && gameInterval) {
+            clearInterval(gameInterval);
+            gameInterval = setInterval(gameTick, getDelayByLevel());
+          }
+        }
+        updateUI();
+      }
+      updateUI();
+    }
+    
+    // Movimentos
+    function movePiece(dx, dy) {
+      if (gameOver) return false;
+      const newX = currentPiece.x + dx;
+      const newY = currentPiece.y + dy;
+      if (!collision(currentPiece.matrix, newX, newY)) {
+        currentPiece.x = newX;
+        currentPiece.y = newY;
+        drawAll();
+        return true;
+      } else if (dy === 1) {
+        // Se tentou mover para baixo e colidiu, fixa a peça
+        mergePiece();
+        drawAll();
+      }
+      return false;
+    }
+    
+    // Rotação da peça
+    function rotatePiece() {
+      if (gameOver) return;
+      // Matriz rotacionada 90 graus
+      const matrix = currentPiece.matrix;
+      const rotated = matrix[0].map((_, idx) => matrix.map(row => row[idx]).reverse());
+      // Verificar colisão após rotação
+      if (!collision(rotated, currentPiece.x, currentPiece.y)) {
+        currentPiece.matrix = rotated;
+        drawAll();
+      } else {
+        // Tentativa de "wall kick" simples: deslocar para esquerda/direita uma vez
+        for (let offset of [-1, 1, -2, 2]) {
+          if (!collision(rotated, currentPiece.x + offset, currentPiece.y)) {
+            currentPiece.matrix = rotated;
+            currentPiece.x += offset;
+            drawAll();
+            break;
+          }
+        }
+      }
+    }
+    
+    // Queda instantânea
+    function hardDrop() {
+      if (gameOver) return;
+      while (!collision(currentPiece.matrix, currentPiece.x, currentPiece.y + 1)) {
+        currentPiece.y++;
+      }
+      mergePiece();  // fixa no grid
+      drawAll();
+    }
+    
+    // Tick do jogo (descida automática)
+    function gameTick() {
+      if (!gameOver && currentPiece) {
+        // tenta descer uma célula
+        if (!collision(currentPiece.matrix, currentPiece.x, currentPiece.y + 1)) {
+          currentPiece.y++;
+          drawAll();
+        } else {
+          mergePiece();
+          drawAll();
+        }
+      }
+    }
+    
+    // ---------- DESENHO (com palavras dentro das células) ----------
+    function drawBlock(ctx, x, y, wordIdx, isActivePiece = false, cellSize = CELL_SIZE) {
+      const baseColor = COLORS[wordIdx];
+      // Gradiente suave
+      const grad = ctx.createLinearGradient(x, y, x+cellSize, y+cellSize);
+      grad.addColorStop(0, baseColor);
+      grad.addColorStop(1, shadeColor(baseColor, -20));
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, cellSize-1, cellSize-1);
+      
+      // Borda
+      ctx.strokeStyle = '#ffffffaa';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, cellSize-1, cellSize-1);
+      
+      // Texto da palavra (educacional)
+      const word = PIECES_WORDS[wordIdx];
+      ctx.font = `bold ${Math.floor(cellSize * 0.3)}px "Segoe UI", "Courier New", monospace`;
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 2;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(word, x + cellSize/2, y + cellSize/2);
+      ctx.shadowColor = 'transparent';
+      
+      // detalhe de brilho se for peça ativa
+      if (isActivePiece) {
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = '#ffffaa';
+        ctx.fillRect(x+2, y+2, cellSize-5, 4);
+        ctx.globalAlpha = 1;
+      }
+    }
+    
+    function shadeColor(color, percent) {
+      // simplificado para gradiente
+      return color;
+    }
+    
+    // Desenhar o tabuleiro completo + peça atual
+    function drawBoard() {
+      // fundo escuro
+      ctx.fillStyle = '#0b1b16';
+      ctx.fillRect(0, 0, COLS * CELL_SIZE, ROWS * CELL_SIZE);
+      
+      // grade (linhas)
+      ctx.strokeStyle = '#2d5f4c';
+      ctx.lineWidth = 0.5;
+      for (let row = 0; row <= ROWS; row++) {
+        ctx.beginPath();
+        ctx.moveTo(0, row * CELL_SIZE);
+        ctx.lineTo(COLS * CELL_SIZE, row * CELL_SIZE);
+        ctx.stroke();
+      }
+      for (let col = 0; col <= COLS; col++) {
+        ctx.beginPath();
+        ctx.moveTo(col * CELL_SIZE, 0);
+        ctx.lineTo(col * CELL_SIZE, ROWS * CELL_SIZE);
+        ctx.stroke();
+      }
+      
+      // Desenhar blocos fixos no grid
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const cellWordIdx = grid[row][col];
+          if (cellWordIdx !== null) {
+            drawBlock(ctx, col * CELL_SIZE, row * CELL_SIZE, cellWordIdx, false, CELL_SIZE);
+          }
+        }
+      }
+      
+      // Desenhar peça atual
+      if (currentPiece && !gameOver) {
+        for (let row = 0; row < currentPiece.matrix.length; row++) {
+          for (let col = 0; col < currentPiece.matrix[0].length; col++) {
+            if (currentPiece.matrix[row][col] !== 0) {
+              const x = (currentPiece.x + col) * CELL_SIZE;
+              const y = (currentPiece.y + row) * CELL_SIZE;
+              drawBlock(ctx, x, y, currentPiece.wordIdx, true, CELL_SIZE);
+            }
+          }
+        }
+      }
+      
+      // Mensagem de Game Over
+      if (gameOver) {
+        ctx.font = 'bold 22px "Segoe UI"';
+        ctx.fillStyle = '#FFE8C5';
+        ctx.shadowBlur = 0;
+        ctx.fillText('📖 GAME OVER', COLS*CELL_SIZE/2 - 90, ROWS*CELL_SIZE/2 - 20);
+        ctx.font = '14px monospace';
+        ctx.fillStyle = '#ffdd99';
+        ctx.fillText('Clique em NOVO JOGO', COLS*CELL_SIZE/2 - 80, ROWS*CELL_SIZE/2 + 20);
+      }
+    }
+    
+    // Desenhar a peça "próxima" no canvas pequeno
+    function drawNext() {
+      nextCtx.clearRect(0, 0, 140, 140);
+      nextCtx.fillStyle = '#0b1b16';
+      nextCtx.fillRect(0, 0, 140, 140);
+      if (nextPiece) {
+        const matrix = nextPiece.matrix;
+        const wordIdx = nextPiece.wordIdx;
+        const blockW = NEXT_CELL_SIZE;
+        const shapeCols = matrix[0].length;
+        const shapeRows = matrix.length;
+        const startX = (140 - (shapeCols * blockW)) / 2;
+        const startY = (140 - (shapeRows * blockW)) / 2;
+        
+        for (let row = 0; row < matrix.length; row++) {
+          for (let col = 0; col < matrix[0].length; col++) {
+            if (matrix[row][col]) {
+              const x = startX + col * blockW;
+              const y = startY + row * blockW;
+              const grad = nextCtx.createLinearGradient(x, y, x+blockW, y+blockW);
+              grad.addColorStop(0, COLORS[wordIdx]);
+              grad.addColorStop(1, COLORS[wordIdx]);
+              nextCtx.fillStyle = grad;
+              nextCtx.fillRect(x, y, blockW-1, blockW-1);
+              nextCtx.strokeStyle = '#bbf0da';
+              nextCtx.strokeRect(x, y, blockW-1, blockW-1);
+              nextCtx.font = `bold ${Math.floor(blockW * 0.35)}px "Segoe UI"`;
+              nextCtx.fillStyle = 'white';
+              nextCtx.textAlign = 'center';
+              nextCtx.textBaseline = 'middle';
+              nextCtx.fillText(PIECES_WORDS[wordIdx].substring(0,4), x+blockW/2, y+blockW/2);
+            }
+          }
+        }
+      }
+    }
+    
+    function drawAll() {
+      drawBoard();
+      drawNext();
+    }
+    
+    // ---------- Reiniciar Jogo completamente ----------
+    function resetGame() {
+      // Parar loop antigo
+      if (gameInterval) {
+        clearInterval(gameInterval);
+        gameInterval = null;
+      }
+      // Limpar grid
+      for (let i = 0; i < ROWS; i++) {
+        for (let j = 0; j < COLS; j++) {
+          grid[i][j] = null;
+        }
+      }
+      score = 0;
+      linesCleared = 0;
+      level = 1;
+      gameOver = false;
+      updateUI();
+      
+      // Gerar peças novas
+      nextPiece = getRandomPiece();
+      spawnNewPiece();   // gera current a partir do next e cria novo next
+      // Se por acaso o spawnNewPiece setar gameOver por colisão (improvável em grid vazio)
+      if (gameOver) gameOver = false; // garantia
+      
+      // Reiniciar loop com velocidade nivel 1
+      const delay = getDelayByLevel();
+      gameInterval = setInterval(gameTick, delay);
+      drawAll();
+    }
+    
+    // ---------- Controles de Teclado ----------
+    function handleKeyDown(e) {
+      if (gameOver) {
+        if (e.code === 'Space' || e.code === 'KeyR') {
+          e.preventDefault();
+          resetGame();
+        }
+        return;
+      }
+      
+      switch(e.key) {
+        case 'ArrowLeft': e.preventDefault(); movePiece(-1, 0); break;
+        case 'ArrowRight': e.preventDefault(); movePiece(1, 0); break;
+        case 'ArrowDown': e.preventDefault(); movePiece(0, 1); break;
+        case 'ArrowUp': e.preventDefault(); rotatePiece(); break;
+        case ' ': case 'Space': e.preventDefault(); hardDrop(); break;
+        default: break;
+      }
+    }
+    
+    // Prevenir scroll com setas
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Space') {
+        if (e.target === document.body || e.target === document.documentElement) {
+          e.preventDefault();
+        }
+      }
+    });
+    document.addEventListener('keydown', handleKeyDown);
+    resetBtn.addEventListener('click', () => resetGame());
+    
+    // Inicialização
+    function init() {
+      resetGame();
+    }
+    
+    init();
+  })();
+</script>
+</body>
+</html>
